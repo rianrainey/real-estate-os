@@ -1,0 +1,2 @@
+rails: cd rails_api && bundle exec rails s -p 3000
+web: cd frontend && pnpm run dev
