@@ -12,9 +12,16 @@ class Users::SessionsController < Devise::SessionsController
     }, status: :ok
   end
   def respond_to_on_destroy
+    logger.info "Destroying session"
     if request.headers['Authorization'].present?
-      jwt_payload = JWT.decode(request.headers['Authorization'].split(' ').last, Rails.application.credentials.devise_jwt_secret_key!).first
-      current_user = User.find(jwt_payload['sub'])
+      begin
+        jwt_payload = JWT.decode(request.headers['Authorization'].split(' ').last, Rails.application.credentials.devise_jwt_secret_key!).first
+        logger.info "JWT payload: #{jwt_payload}"
+        current_user = User.find(jwt_payload['sub'])
+        logger.info "Current user: #{current_user}"
+      rescue JWT::DecodeError => e
+        logger.error "JWT decode error: #{e.message}"
+      end
     end
 
     if current_user
